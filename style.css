@@ -1,0 +1,19 @@
+.left_side_list {
+    text-align: left;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.left_side_list ul {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+.left_side_list ul li{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+/* second level of list should have smaller margins: */
+.left_side_list li > ul li {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

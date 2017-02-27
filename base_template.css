@@ -1,0 +1,64 @@
+/* Default styles should be fine for any slides: */
+body {
+    font-family: Arial;
+    color: #ffffff;
+}
+
+h1 {
+    color: #00cc99;
+}
+
+a, a:visited {
+    color: #eeeeee;
+}
+
+.remark-slide-content {
+    background-color: #153f6c;
+    font-size: 32px;
+    padding-top: 0em !important;
+}
+
+.remark-slide-number {
+    width: 97%;
+    text-align: right;
+    background-image: url('images/pl-NORMAL-white.svg');
+    background-size: 2.5em;
+    background-position: left bottom;
+    background-repeat: no-repeat;
+}
+
+/* TODO: it is fine for 16:9 ratio but not for 4:3 and should be fixed */
+#slide-title h1 {
+    margin-top: 37% ;
+    margin-bottom: 30px;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+h2 {
+    margin-top: 10px;
+}
+
+.last h2 {
+    color: #00cc99;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.remark-code {
+    display: block;
+    margin-top: -15px;
+}
+
+.remark-code-line {
+    text-align: left;
+    background-color: #000;
+    border: 1px solid #000;
+    color: #fff;
+    padding: 0 1em;
+}
+
+
+
