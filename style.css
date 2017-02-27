@@ -1,3 +1,7 @@
+.remark-notes {
+    font-size: 16pt;
+}
+
 .left_side_list {
     text-align: left;
     margin-top: 20px;
@@ -16,4 +20,23 @@
 .left_side_list li > ul li {
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+.source_txt {
+    font-size: 10pt;
+    text-align: left;
+}
+
+#slide-openstack_general h1 {
+    text-align: center;
+}
+#slide-openstack_general p {
+    text-align: justify;
+}
+#slide-openstack_general img {
+    width: 70%;
+}
+
+#slide-openstack_main_components img {
+    width: 75%;
 }

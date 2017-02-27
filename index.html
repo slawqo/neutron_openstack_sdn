@@ -25,14 +25,84 @@ IRC: slaweq
 
 ---
 name: agenda
-class: center
 
 # Agenda
 
+1. What is SDN? Definition of SDN
+  * definition of SDN
+  * examples
+2. What is Openstack?
+  * Openstack in general
+  * Main components
+3. How SDN is done in Openstack
+  * Basic concept of Openstack Neutron
+  * Neutron's main components
+4. Example of connections scenario made by Openstack Neutron
+  * legacy scenario with Openvswitch and Network node
+
 ---
 
+name: openstack_general
+class: split-40
+
+# What is Openstack?
+
+.column[
+![openstack_logo](images/OpenStack-Logo-Vertical.png)  
+.source_txt[source: http://www.openstack.org]
+]
+.column[
+    OpenStack is a cloud operating system that controls large pools of compute, storage, and networking resources throughout a datacenter, all managed through a dashboard that gives administrators control while empowering their users to provision resources through a web interface.
+]
+
+
+???
+Ogólna definicja ze strony Openstack Foundation:  
+  
+Openstack to system, który kontroluje duże pule mocy obliczeniowej, storage'u i zasobów sieciowych w całym DC. Wszystko zarządzane jest przez jeden dashboard (oraz API), który umożliwia kontrolę administratorowi i daje możliwość korzystania z tych zasobów użytkownikom.
+
+---
+
+name: openstack_main_components
 class: center
-Something more...
+
+# Base Openstack components
+
+![openstack_architecture](images/openstack-software-diagram.png)  
+.source_txt[source: http://www.openstack.org/software]
+
+???
+Openstack'a można podzielić na 3 podstawowe części:
+* compute - Nova (VMs), Glance (Images)
+* storage - Swift (object storage), Cinder (block storage)
+* networking - Neutron
+
+Jest również wiele innych, mniejszych projektów. Np. Horizon (dashboard), ceilometer (telemetry) or kuryr (networking for containers)  
+Wsystkie te projekty dostarczają REST API do zarządzania/obsługi Openstack'a
+
+--
+
+name: openstack_main_components
+
+.left_side_list[
+* compute - Nova (VMs), Glance (Images)
+]
+
+--
+
+name: openstack_main_components
+
+.left_side_list[
+* storage - Swift (object storage), Cinder (block storage)
+]
+
+--
+
+name: openstack_main_components
+
+.left_side_list[
+* networking - Neutron
+]
 
 ---
 
