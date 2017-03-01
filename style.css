@@ -27,6 +27,18 @@
     text-align: left;
 }
 
+.full_slide_img {
+    text-align: center;
+}
+
+.left_side_img img {
+    float: left;
+}
+
+.right_side_img img {
+    float: right;
+}
+
 #slide-openstack_general h1 {
     text-align: center;
 }
@@ -40,3 +52,13 @@
 #slide-openstack_main_components img {
     width: 75%;
 }
+
+#slide-sdn_definition .left_side_img img {
+    margin-top: 20px;
+    width: 60%;
+}
+
+#slide-sdn_definition .right_side_img img {
+    margin-top: 20px;
+}
+

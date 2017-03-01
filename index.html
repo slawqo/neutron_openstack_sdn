@@ -28,9 +28,7 @@ name: agenda
 
 # Agenda
 
-1. What is SDN? Definition of SDN
-  * definition of SDN
-  * examples
+1. What is SDN?
 2. What is Openstack?
   * Openstack in general
   * Main components
@@ -39,6 +37,56 @@ name: agenda
   * Neutron's main components
 4. Example of connections scenario made by Openstack Neutron
   * legacy scenario with Openvswitch and Network node
+
+---
+
+name: sdn_definition
+
+# What is SDN?
+
+**Software-defined networking (SDN)** is an approach to computer networking that
+allows network administrators to programmatically initialize, control, change,
+and manage network behavior dynamically via open interfaces and abstraction
+of lower-level functionality.  
+.source_txt[Source: [wikipedia](https://en.wikipedia.org/wiki/Software-defined_networking)]
+
+.left_side_img[
+    ![onf_logo](images/onf-logo.png)
+]
+.right_side_img[
+    ![openflow_logo](images/OpenFlow-Logo-Small.jpg)
+]
+
+???
+Definicja SDN (wg np. wikipedia): **Software Defined Networking**
+Można spotkać się też z określeninem że jest to **programowalna sieć**  
+Ogólnie chodzi o to, że  SDN to podejście to sieci komputerowych, które pozwala
+na programowalną kontrolę, zmianę i zarządzanie siecią z jednego
+scentralizowanego punktu przez jakiś interfejs, który jest abstrakcją
+przykrywającą jakieś specyficzne implementacje.
+
+---
+
+name: sdn_definition_2
+
+# What is SDN?
+
+.full_slide_img[
+    ![sdn_diagram](images/sdn-3layers.gif)
+]
+.source_txt[source: https://www.opennetworking.org]
+
+???
+
+W modelu SDN można wyróżnić 3 warstwy:  
+* warstwę aplikacji, która komunikuje się z warstwą zarządzającą SDN'em przez API
+* warstwę która udostępnia API i zarządza całym SDN'em - jest ona scentralizowana
+* warstwę infrastrukturalną (tu znajdują się urządzenia sieciowe) - najczęściej
+  do komunikacji pomiędzy kontrolerem a urządzeniami sieciowymi wykorzystywany
+  jest protokół **Openflow**
+
+Dzięki takiemu podejściu aplikacja/user może w łatwy sposób zmieniać topologię
+takiej sieci SDN.
 
 ---
 
@@ -52,14 +100,20 @@ class: split-40
 .source_txt[source: http://www.openstack.org]
 ]
 .column[
-    OpenStack is a cloud operating system that controls large pools of compute, storage, and networking resources throughout a datacenter, all managed through a dashboard that gives administrators control while empowering their users to provision resources through a web interface.
+    OpenStack is a cloud operating system that controls large pools of compute,
+    storage, and networking resources throughout a datacenter, all managed
+    through a dashboard that gives administrators control while empowering their
+    users to provision resources through a web interface.
 ]
 
 
 ???
 Ogólna definicja ze strony Openstack Foundation:  
   
-Openstack to system, który kontroluje duże pule mocy obliczeniowej, storage'u i zasobów sieciowych w całym DC. Wszystko zarządzane jest przez jeden dashboard (oraz API), który umożliwia kontrolę administratorowi i daje możliwość korzystania z tych zasobów użytkownikom.
+Openstack to system, który kontroluje duże pule mocy obliczeniowej, storage'u i
+zasobów sieciowych w całym DC. Wszystko zarządzane jest przez jeden dashboard
+(oraz API), który umożliwia kontrolę administratorowi i daje możliwość
+korzystania z tych zasobów użytkownikom.
 
 ---
 
