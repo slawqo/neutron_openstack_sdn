@@ -131,7 +131,11 @@ Openstack'a można podzielić na 3 podstawowe części:
 * storage - Swift (object storage), Cinder (block storage)
 * networking - Neutron
 
-Jest również wiele innych, mniejszych projektów. Np. Horizon (dashboard), ceilometer (telemetry) or kuryr (networking for containers)  
+Jest również wiele innych, np.:
+* Horizon (dashboard),
+* keystone (autentykacja),
+* wiele innych jak: ceilometer (telemetry) or kuryr (networking for containers)
+
 Wsystkie te projekty dostarczają REST API do zarządzania/obsługi Openstack'a
 
 --
@@ -157,6 +161,164 @@ name: openstack_main_components
 .left_side_list[
 * networking - Neutron
 ]
+
+---
+
+name: neutron_main_components
+class: center
+
+# Neutron main components
+
+![architecture](images/neutron_components_architecture.png)
+
+???
+Neutron podzielony jest na kilka głównych komponentów:
+
+* neutron server - zapewnia obsługę API, ma dostęp do bazy,
+* tzw. L2 agenty - agenty działające na wszystkich node'ach w klastrze -
+  zapewniają podłączenie "portów" do sieci
+* inne agenty takie jak DHCP agent, L3 agent czy metadata agent
+
+Taka struktura (z agentami) dotyczy Neutrona z tzw. ML2 plugin'em, który jest
+domyślną referencyjną implementacją.
+Istnieją inne core pluginy, dostarczane przez firmy trzecie, np. Midonet, Calico
+czy PLUMgrid. Mogą one działać w inny sposób, np. bez L2 czy DHCP agentów.
+
+Komunikacja pomiędzy Neutron serverem i agentami odbywa się przez RPC (typowo
+rabbitmq).
+
+---
+
+name: neutron_as_sdn
+class: center
+
+# Neutron as SDN
+
+![neutron_sdn_diagram](images/neutron-sdn-3layers.png)
+
+???
+Diagram modelu SDN ale z zaznaczonymi komponentami Openstack'a w każdej z warstw.
+* Warstwa aplikacji - taką aplikacją korzystającą z SDN'a może być np.
+  Nova-compute, która tworzy instancje i oczekuje od Neutron'a, aby były one
+  podpięte do konkretnej sieci. Taka aplikacja komunikuje się z SDN'em
+  (neutron'em) przez REST Api jakie udostępnia Neutron.
+* Zarządzaniem całego SDN'a i obsługą API zajmuje się neutron server. To on
+  jako jedyny ma dostęp do bazy danych i posiada informacje o wszystkich
+  działających w sieci agentach, dostępnych typach sieci i driver'ach. Na tej
+  podstawie może przydzielić (albo nie) port do podłączenia np. VMki do sieci
+  prywatnej lub publicznej.
+* Warstwa infrastruktury to cały klaster serwerów compute z L2 agentami i tzw.
+  network node'y (z L2 i L3 agentami) realizujące usługi sieciowe, np. vrouter
+  czy fwaas
+
+Inaczej niż w typowym SDN'ie komunikacja pomiędzy warstwą zarządzającą a
+infrastrukturą (agentami) odbywa się przez protoków RPC a nie Openflow.
+Openflow jest wykorzystywany np. przez Openvswitch L2 agenty, ale jest to tylko
+jedna z możliwych do wykorzystania technologii.
+
+---
+
+name: neutron_usage_example_create_network
+class: center
+
+# How to use Neutron
+
+.left_side_list[
+create network
+]
+
+```
+admin@devstack-1:~$ neutron net-create Local-Network
+Created a new network:
++---------------------------+--------------------------------------+
+| Field                     | Value                                |
++---------------------------+--------------------------------------+
+| admin_state_up            | True                                 |
+| availability_zone_hints   |                                      |
+| availability_zones        |                                      |
+| created_at                | 2016-08-01T12:38:36                  |
+| description               |                                      |
+| id                        | 74149489-5cd6-473e-aeb7-d003652c8048 |
+| ipv4_address_scope        |                                      |
+| ipv6_address_scope        |                                      |
+| mtu                       | 0                                    |
+| name                      | Local-Network                        |
+| port_security_enabled     | True                                 |
+| provider:network_type     | local                                |
+| provider:physical_network |                                      |
+| provider:segmentation_id  |                                      |
+```
+
+???
+Pierwsze co należy zrobić w Neutronie to utworzyć sieć.  
+Sieć jest to jakiś izolowany segment. Można porównać to np. do VLANu w sieci
+fizycznej.
+Mogą być sieci typu:
+* tenant network - sieci prywatne, per tenant - domyślnie realizowane przez tunele vxlan lub gre
+* provider network - sieć mapowana bezpośrednio na fizyczną sieć w DC, np. vlan albo flat network
+* external network - taka jak provider network ale zapewniająca również dostęp do internetu
+
+---
+
+name: neutron_usage_example_create_subnet
+class: center
+
+# How to use Neutron
+
+.left_side_list[
+create subnet
+]
+
+
+```
+admin@devstack-1:~$ neutron subnet-create Local-Network 10.0.0.0/24
+Created a new subnet:
++-------------------+--------------------------------------------+
+| Field             | Value                                      |
++-------------------+--------------------------------------------+
+| allocation_pools  | {"start": "10.0.0.2", "end": "10.0.0.254"} |
+| cidr              | 10.0.0.0/24                                |
+| created_at        | 2016-08-01T12:47:28                        |
+| description       |                                            |
+| dns_nameservers   |                                            |
+| enable_dhcp       | True                                       |
+| gateway_ip        | 10.0.0.1                                   |
+| host_routes       |                                            |
+| id                | 9f31692e-f2b8-4db0-9073-1c732373b9af       |
+| ip_version        | 4                                          |
+| ipv6_address_mode |                                            |
+| ipv6_ra_mode      |                                            |
+| name              |                                            |
+| network_id        | 74149489-5cd6-473e-aeb7-d003652c8048       |
+| subnetpool_id     |                                            |
+```
+
+???
+Następnym krokiem jest utworzenie tzw. subnet'u.  
+Subnet jest to block adresów IP razem z całą konfiguracją (gw, dhcp server IP, IP range)
+
+---
+
+name: neutron_usage_example_create_port
+class: center
+
+# How to use Neutron
+
+.left_side_list[
+create port
+]
+
+```
+```
+
+???
+TODO: tworzenie portu i później przykład tego co się dzieje na hoście
+
+---
+
+name: example_scenario
+
+#
 
 ---
 
