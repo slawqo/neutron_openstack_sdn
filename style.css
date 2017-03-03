@@ -28,15 +28,28 @@
 }
 
 .full_slide_img {
+    width: 100%;
     text-align: center;
 }
 
-.left_side_img img {
+.left_side_img {
     float: left;
 }
 
-.right_side_img img {
+.right_side_img {
     float: right;
+}
+
+div.image-w80pr img {
+    width: 80%;
+}
+
+div.scenario {
+    padding: 1em 2em;
+}
+
+.scenario p {
+    margin-top: 10px;
 }
 
 #slide-openstack_general h1 {
@@ -60,5 +73,13 @@
 
 #slide-sdn_definition .right_side_img img {
     margin-top: 20px;
+}
+
+div.scenario {
+    padding: 1em 2em;
+}
+
+.scenario p {
+    margin-top: 10px;
 }
 

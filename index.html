@@ -228,7 +228,7 @@ create network
 ]
 
 ```
-admin@devstack-1:~$ neutron net-create Local-Network
+admin@devstack-2:~$ neutron net-create Local-Network
 Created a new network:
 +---------------------------+--------------------------------------+
 | Field                     | Value                                |
@@ -271,7 +271,7 @@ create subnet
 
 
 ```
-admin@devstack-1:~$ neutron subnet-create Local-Network 10.0.0.0/24
+admin@devstack-2:~$ neutron subnet-create Local-Network 10.0.0.0/24
 Created a new subnet:
 +-------------------+--------------------------------------------+
 | Field             | Value                                      |
@@ -309,16 +309,152 @@ create port
 ]
 
 ```
+admin@devstack-2:~$ neutron port-create Local-Network --binding:host_id devstack-2
++-----------------------+------------------------------------------------+
+| Field                 | Value                                          |
++-----------------------+------------------------------------------------+
+| admin_state_up        | True                                           |
+| binding:host_id       | devstack-2                                     |
+| binding:vif_details   | {"port_filter": true, "ovs_hybrid_plug": true} |
+| binding:vif_type      | ovs                                            |
+| binding:vnic_type     | normal                                         |
+| created_at            | 2017-03-03T21:08:04Z                           |
+| fixed_ips             | {"subnet_id": "...", "ip_address": "10.0.0.5"} |
+| id                    | 269cc404-5fb2-465a-94dc-76a17b3781dd           |
+| mac_address           | fa:16:3e:6e:f8:9f                              |
+| network_id            | 45b19f14-e531-431b-b66a-755d8d64ba17           |
+| port_security_enabled | True                                           |
+| project_id            | 4ec2efced54b44719377a710aacbf3da               |
+| revision_number       | 6                                              |
+| status                | DOWN                                           |
+
 ```
 
 ???
-TODO: tworzenie portu i później przykład tego co się dzieje na hoście
+Gdy sieć i subnet mamy już gotowy, można utworzyć port. Najczęściej robi to za
+nas Nova tworząc VMkę, ale można to zrobić również samemu.
+Aby port został skonfigurowany na hoście, musimy go tam odpowiednio podłączyć,
+np. w przypadku bindingu "ovs" trzeba dodać interfejs o konkretnej nazwie do
+bridge'a integracji na hoście. To też w przypadku Openstacka robi nova-compute.
+
+Gdy port jest już dodany do bridge'a, resztę konfiguracji na hoście robi L2
+agent (ovs w tym wypadku)
 
 ---
 
-name: example_scenario
+name: example_scenario_1
+class: center, scenario
 
-#
+#Network scenario example
+
+![scenario overview](images/scenario-legacy-general.png)
+
+???
+To teraz jak już port jest utworzony to spróbujmy prześledzić co Neutron robi z
+tym portem i jak ten ruch trafia do i z tego portu
+
+Na początek przykładowy klaster Openstacka, który będziemy analizować:
+* network node - węzeł realizujący usługi 3 warstwy (vrouter, floating ip), usługa DHCP
+* compute node'y - serwery w klastrze
+
+Przedstawiony przykład obejmuje scenariusz z ovs agentem jako L2 agent i tzw.
+klasyczny network-node (są warianty z L3-HA również i z DVR'em)
+
+---
+
+name: example_scenario_2
+class: center, scenario
+
+#Network scenario example
+
+.left_side_img[
+![scenario compute 1](images/scenario-legacy-ovs-compute1.png)
+]
+.right_side_img[
+![scenario compute 2](images/scenario-legacy-ovs-compute2.png)
+]
+
+???
+Compute node. Po lewej ogólnie co się na nim znajduje:
+instancja,
+Linuxbridge, który realizuje tzw. security grupy
+ovs z bridgami integracji (wpięte do niego są instancje), tunnelu i vlanowy
+
+Po prawej stronie już bardziej szczegółowo jak instancja jest podłączona do sieci L2:
+eth0 instancji połączone jest z interfejsem tap który jest portem w bridgu linuksowym
+następnie mamy parę veth’ów z których jeden koniec zbridgowany z tap’em a drugi
+jest umieszony w br integracji;
+Mogło by to być zrobione prościej i tap mógłby być bezpośrednio w bridgu
+integracji ale wtedy SG (realizowane przez iptables) nie działały by dla tego
+portu wcale, następnie bridge integracji połączony jest z bridgami tunnelu i vlan, dla
+każdego portu są tam regułki openflow które decydują czy pakiety z takiego tap’a
+mają trafić do br-tun czy vlan
+
+---
+
+name: example_scenario_3
+class: center, scenario
+
+#Network scenario example
+
+.left_side_img[
+![scenario network 1](images/scenario-legacy-ovs-network1.png)
+]
+.right_side_img[
+![scenario network 2](images/scenario-legacy-ovs-network2.png)
+]
+
+???
+
+Network node. Rysunek po lewej bardzo podobny do tego z compute node’a. Oprócz
+instancji jest L3 agent i DHCP agent i dodatkowo w ovs’ie jest br-ex który służy
+do podłączenia sieci do internetu.
+
+Na rysunku po prawej przedstawiony jest schemat połączeń na takim network nodzie.
+Po pierwsze jest namespace dhcp (qdhcp) i interfej tap serwera dhcp jest
+bezpośrednio wpięty do bridge’a integracji.
+Z drugiej strony namespace qrouter w którym są porty qr i qg czyli połączenie
+routera do sieci prywatnej (qr) i do internetu (qg). Te porty również są w
+bridge’u integracji.
+Reguły openflow kierują później pakiety do odpowiednich bridge’y (br-tun, br-ex,
+vlan)
+
+---
+
+name: example_scenario_4
+class: center, scenario
+
+#Network scenario example
+
+.full_slide_img[
+![scenario flows](images/scenario-legacy-ovs-flowns1-compute.png)
+]
+
+???
+Przykładowy przepływ pakietów z instancji do internetu (czyli tzw. ruch
+north/south).
+
+Pakiety z instacnji przechodzą przez qbr i trafiają do br-int’a a następnie
+przez patch-tun lub int-br-vlan do odpowiedniego bridge’a. W bridge’ach tych
+kolejne reguły openflow mogą zmienić np. VLAN tag pakietu lub dla sieci vxlan
+„opakować” pakiet w odpowiedni VNI.
+---
+
+name: example_scenario_5
+class: center, scenario
+
+#Network scenario example
+
+.image-w80pr[
+![scenario flows](images/scenario-legacy-ovs-flowns1-network.png)
+]
+
+???
+
+Pakiety trafiają do network node’a i przechodzą podobną drogę: przez bridge tun
+lub vlan i patch port do bridge’a integracji trafiają do router’a (namespace’a)
+do portu qr. Tam są NAT’owane na adres gateway’a (ustawiony na qg) i wysyłane w
+świat.
 
 ---
 
