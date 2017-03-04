@@ -58,12 +58,15 @@ of lower-level functionality.
 ]
 
 ???
-Definicja SDN (wg np. wikipedia): **Software Defined Networking**
-Można spotkać się też z określeninem że jest to **programowalna sieć**  
-Ogólnie chodzi o to, że  SDN to podejście to sieci komputerowych, które pozwala
-na programowalną kontrolę, zmianę i zarządzanie siecią z jednego
-scentralizowanego punktu przez jakiś interfejs, który jest abstrakcją
-przykrywającą jakieś specyficzne implementacje.
+Definicja SDN wg wikipedia
+
+SDN zapewnia możliwość programowalnego:
+* zmieniania
+* kontroli
+* zarządzania
+sieciami
+
+Ma API, które przykrywa implementacje pod spodem
 
 ---
 
@@ -78,15 +81,12 @@ name: sdn_definition_2
 
 ???
 
-W modelu SDN można wyróżnić 3 warstwy:  
-* warstwę aplikacji, która komunikuje się z warstwą zarządzającą SDN'em przez API
-* warstwę która udostępnia API i zarządza całym SDN'em - jest ona scentralizowana
-* warstwę infrastrukturalną (tu znajdują się urządzenia sieciowe) - najczęściej
-  do komunikacji pomiędzy kontrolerem a urządzeniami sieciowymi wykorzystywany
-  jest protokół **Openflow**
+3 warstwy w SDN:
+* warstwę aplikacji
+* warstwę kontrolną - udostępnia API i zarządza całym SDN'em; jest ona scentralizowana
+* warstwę infrastrukturalną z urządzeniami sieciowymi - najczęściej
 
-Dzięki takiemu podejściu aplikacja/user może w łatwy sposób zmieniać topologię
-takiej sieci SDN.
+Openflow najczęściej do komunikacji
 
 ---
 
@@ -108,12 +108,10 @@ class: split-40
 
 
 ???
-Ogólna definicja ze strony Openstack Foundation:  
-  
-Openstack to system, który kontroluje duże pule mocy obliczeniowej, storage'u i
-zasobów sieciowych w całym DC. Wszystko zarządzane jest przez jeden dashboard
-(oraz API), który umożliwia kontrolę administratorowi i daje możliwość
-korzystania z tych zasobów użytkownikom.
+Ogólna definicja ze strony Openstack Foundation:
+
+* kontroluje zasoby mocy obliczeniowej, storage i sieci w DC
+* Ma API i dashboard przez który można tym zarządzać i używać
 
 ---
 
@@ -131,10 +129,10 @@ Openstack'a można podzielić na 3 podstawowe części:
 * storage - Swift (object storage), Cinder (block storage)
 * networking - Neutron
 
-Jest również wiele innych, np.:
+oraz inne
 * Horizon (dashboard),
 * keystone (autentykacja),
-* wiele innych jak: ceilometer (telemetry) or kuryr (networking for containers)
+* ceilometer (telemetry) or kuryr (networking for containers)
 
 Wsystkie te projekty dostarczają REST API do zarządzania/obsługi Openstack'a
 
@@ -172,20 +170,21 @@ class: center
 ![architecture](images/neutron_components_architecture.png)
 
 ???
-Neutron podzielony jest na kilka głównych komponentów:
+Komponenty neutrona:
 
 * neutron server - zapewnia obsługę API, ma dostęp do bazy,
-* tzw. L2 agenty - agenty działające na wszystkich node'ach w klastrze -
-  zapewniają podłączenie "portów" do sieci
-* inne agenty takie jak DHCP agent, L3 agent czy metadata agent
+* L2 agenty - działają na wszystkich node'ach w klastrze -
+  zapewniają podłączenie L2 "portów" do sieci
+* DHCP agent, L3 agent czy metadata agent
 
-Taka struktura (z agentami) dotyczy Neutrona z tzw. ML2 plugin'em, który jest
-domyślną referencyjną implementacją.
-Istnieją inne core pluginy, dostarczane przez firmy trzecie, np. Midonet, Calico
-czy PLUMgrid. Mogą one działać w inny sposób, np. bez L2 czy DHCP agentów.
+Komunikacja przez RPC
 
-Komunikacja pomiędzy Neutron serverem i agentami odbywa się przez RPC (typowo
-rabbitmq).
+Jest tak w ML2 plugin.
+Inne core pluginy mogą to robić inaczej:
+* Midonet
+* Calico
+* PLUMgrid
+
 
 ---
 
@@ -197,24 +196,14 @@ class: center
 ![neutron_sdn_diagram](images/neutron-sdn-3layers.png)
 
 ???
-Diagram modelu SDN ale z zaznaczonymi komponentami Openstack'a w każdej z warstw.
-* Warstwa aplikacji - taką aplikacją korzystającą z SDN'a może być np.
-  Nova-compute, która tworzy instancje i oczekuje od Neutron'a, aby były one
-  podpięte do konkretnej sieci. Taka aplikacja komunikuje się z SDN'em
-  (neutron'em) przez REST Api jakie udostępnia Neutron.
-* Zarządzaniem całego SDN'a i obsługą API zajmuje się neutron server. To on
-  jako jedyny ma dostęp do bazy danych i posiada informacje o wszystkich
-  działających w sieci agentach, dostępnych typach sieci i driver'ach. Na tej
-  podstawie może przydzielić (albo nie) port do podłączenia np. VMki do sieci
-  prywatnej lub publicznej.
-* Warstwa infrastruktury to cały klaster serwerów compute z L2 agentami i tzw.
-  network node'y (z L2 i L3 agentami) realizujące usługi sieciowe, np. vrouter
-  czy fwaas
+Openstack w modelu SDN:
+* warstwa aplikacji - np. nova-compute, korzysta z API neutron'a
+* warstwa zarządzająca - neutron server; ma API, dostępo do bazy, zna całą sieć,
+  agenty, typy sieci itp.
+* warstwa infrastruktury - serwery w klastrze; mają L2 i L3 agenty
 
-Inaczej niż w typowym SDN'ie komunikacja pomiędzy warstwą zarządzającą a
-infrastrukturą (agentami) odbywa się przez protoków RPC a nie Openflow.
-Openflow jest wykorzystywany np. przez Openvswitch L2 agenty, ale jest to tylko
-jedna z możliwych do wykorzystania technologii.
+Komunikacja przez RPC a nie przez Openflow jak w SDN'ie.  
+Openflow wykorzystywany przez OVS agent'y
 
 ---
 
@@ -250,10 +239,10 @@ Created a new network:
 ```
 
 ???
-Pierwsze co należy zrobić w Neutronie to utworzyć sieć.  
 Sieć jest to jakiś izolowany segment. Można porównać to np. do VLANu w sieci
-fizycznej.
-Mogą być sieci typu:
+fizycznej.  
+
+Typy sieci:
 * tenant network - sieci prywatne, per tenant - domyślnie realizowane przez tunele vxlan lub gre
 * provider network - sieć mapowana bezpośrednio na fizyczną sieć w DC, np. vlan albo flat network
 * external network - taka jak provider network ale zapewniająca również dostęp do internetu
@@ -294,8 +283,9 @@ Created a new subnet:
 ```
 
 ???
-Następnym krokiem jest utworzenie tzw. subnet'u.  
-Subnet jest to block adresów IP razem z całą konfiguracją (gw, dhcp server IP, IP range)
+Subnet to:
+* block adresów IP
+* z konfiguracją (gw, dhcp server IP, IP range)
 
 ---
 
@@ -331,11 +321,9 @@ admin@devstack-2:~$ neutron port-create Local-Network --binding:host_id devstack
 ```
 
 ???
-Gdy sieć i subnet mamy już gotowy, można utworzyć port. Najczęściej robi to za
-nas Nova tworząc VMkę, ale można to zrobić również samemu.
-Aby port został skonfigurowany na hoście, musimy go tam odpowiednio podłączyć,
-np. w przypadku bindingu "ovs" trzeba dodać interfejs o konkretnej nazwie do
-bridge'a integracji na hoście. To też w przypadku Openstacka robi nova-compute.
+Port tworzy często Nova-compute.
+
+Trzeba go skonfigurować wstępnie na hoście (vif_type)
 
 Gdy port jest już dodany do bridge'a, resztę konfiguracji na hoście robi L2
 agent (ovs w tym wypadku)
@@ -350,15 +338,9 @@ class: center, scenario
 ![scenario overview](images/scenario-legacy-general.png)
 
 ???
-To teraz jak już port jest utworzony to spróbujmy prześledzić co Neutron robi z
-tym portem i jak ten ruch trafia do i z tego portu
-
-Na początek przykładowy klaster Openstacka, który będziemy analizować:
-* network node - węzeł realizujący usługi 3 warstwy (vrouter, floating ip), usługa DHCP
+Przykładowy klaster Openstacka (legacy z network node'em):
+* network node - usługi 3 warstwy (vrouter, floating ip), usługa DHCP
 * compute node'y - serwery w klastrze
-
-Przedstawiony przykład obejmuje scenariusz z ovs agentem jako L2 agent i tzw.
-klasyczny network-node (są warianty z L3-HA również i z DVR'em)
 
 ---
 
@@ -375,20 +357,16 @@ class: center, scenario
 ]
 
 ???
-Compute node. Po lewej ogólnie co się na nim znajduje:
-instancja,
-Linuxbridge, który realizuje tzw. security grupy
-ovs z bridgami integracji (wpięte do niego są instancje), tunnelu i vlanowy
+Compute node. Po lewej ogólnie:
+* instancja,
+* Linuxbridge, który realizuje tzw. security grupy
+* ovs z bridgami integracji, tunnelu i vlanowy
 
-Po prawej stronie już bardziej szczegółowo jak instancja jest podłączona do sieci L2:
-eth0 instancji połączone jest z interfejsem tap który jest portem w bridgu linuksowym
-następnie mamy parę veth’ów z których jeden koniec zbridgowany z tap’em a drugi
-jest umieszony w br integracji;
-Mogło by to być zrobione prościej i tap mógłby być bezpośrednio w bridgu
-integracji ale wtedy SG (realizowane przez iptables) nie działały by dla tego
-portu wcale, następnie bridge integracji połączony jest z bridgami tunnelu i vlan, dla
-każdego portu są tam regułki openflow które decydują czy pakiety z takiego tap’a
-mają trafić do br-tun czy vlan
+Po prawej szczegółowo:
+* port tap w linuksowym bridge'u
+* drugi port w qbr to koniec veth'a
+* drugi koniec veth'a w br-int
+* br-int połączony przez patch port'y z br-tun i br-vlan
 
 ---
 
@@ -406,16 +384,16 @@ class: center, scenario
 
 ???
 
-Network node. Rysunek po lewej bardzo podobny do tego z compute node’a. Oprócz
-instancji jest L3 agent i DHCP agent i dodatkowo w ovs’ie jest br-ex który służy
-do podłączenia sieci do internetu.
+Network node. Po lewej ogólnie:
+* L3 agent i DHCP agent
+* dodatkowo w ovs’ie jest br-ex który służy do podłączenia sieci external
 
-Na rysunku po prawej przedstawiony jest schemat połączeń na takim network nodzie.
-Po pierwsze jest namespace dhcp (qdhcp) i interfej tap serwera dhcp jest
-bezpośrednio wpięty do bridge’a integracji.
-Z drugiej strony namespace qrouter w którym są porty qr i qg czyli połączenie
-routera do sieci prywatnej (qr) i do internetu (qg). Te porty również są w
-bridge’u integracji.
+Po prawej:
+* namespace dhcp (qdhcp) i interfej tap serwera dhcp wpięty do br-int.
+* namespace qrouter (porty w br-int)
+    * routera do sieci prywatnej (qr)
+    * do internetu (qg).
+
 Reguły openflow kierują później pakiety do odpowiednich bridge’y (br-tun, br-ex,
 vlan)
 
@@ -431,13 +409,10 @@ class: center, scenario
 ]
 
 ???
-Przykładowy przepływ pakietów z instancji do internetu (czyli tzw. ruch
-north/south).
+Ruch north-south (do internetu)
 
-Pakiety z instacnji przechodzą przez qbr i trafiają do br-int’a a następnie
-przez patch-tun lub int-br-vlan do odpowiedniego bridge’a. W bridge’ach tych
-kolejne reguły openflow mogą zmienić np. VLAN tag pakietu lub dla sieci vxlan
-„opakować” pakiet w odpowiedni VNI.
+VM - qbr - br-int -- OF rules -- patch-port -- {br-tun, br-vlan} --
+OF(np. zmień VLAN, nadaj VNI) -- out
 ---
 
 name: example_scenario_5
@@ -451,10 +426,10 @@ class: center, scenario
 
 ???
 
-Pakiety trafiają do network node’a i przechodzą podobną drogę: przez bridge tun
-lub vlan i patch port do bridge’a integracji trafiają do router’a (namespace’a)
-do portu qr. Tam są NAT’owane na adres gateway’a (ustawiony na qg) i wysyłane w
-świat.
+W network node podobnie:
+
+{br-tun,br-vlan} -- OF(np. zmień/nadaj vlan id) -- patch-port -- br-int --
+router (przez qr) -- NAT -- qg -- br-int -- br-ex -- internet
 
 ---
 
