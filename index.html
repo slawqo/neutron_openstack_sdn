@@ -207,6 +207,21 @@ Openflow wykorzystywany przez OVS agent'y
 
 ---
 
+name: example_scenario_1
+class: center, scenario
+
+#Deployment example
+
+![scenario overview](images/scenario-legacy-general.png)
+
+???
+Przykładowy klaster Openstacka (legacy z network node'em):
+* network node - usługi 3 warstwy (vrouter, floating ip), usługa DHCP
+* compute node'y - serwery w klastrze
+
+---
+
+
 name: neutron_usage_example_create_network
 class: center
 
@@ -327,20 +342,6 @@ Trzeba go skonfigurować wstępnie na hoście (vif_type)
 
 Gdy port jest już dodany do bridge'a, resztę konfiguracji na hoście robi L2
 agent (ovs w tym wypadku)
-
----
-
-name: example_scenario_1
-class: center, scenario
-
-#Network scenario example
-
-![scenario overview](images/scenario-legacy-general.png)
-
-???
-Przykładowy klaster Openstacka (legacy z network node'em):
-* network node - usługi 3 warstwy (vrouter, floating ip), usługa DHCP
-* compute node'y - serwery w klastrze
 
 ---
 
